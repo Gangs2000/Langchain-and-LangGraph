@@ -54,7 +54,7 @@ class Retrieval:
         return response.content
     
     # Retrieval with langchain expression language
-    def retrieve_response_without_lcel(self, dict):
+    def retrieve_response_with_lcel(self, dict):
         """
             Retrieving the result using langchain expression language.
             This helps to keep tracking all layers in one single trace file
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     response = retrieval.retrieve_response_without_lcel(query)
     print(f"Response using without lcel : {response}")
     print(">>> Retrieving content with langchain expression language")
-    response = retrieval.retrieve_response_without_lcel({"query": query})
+    response = retrieval.retrieve_response_with_lcel({"query": query})
     print(f"Response using with lcel : {response}")
     
     
