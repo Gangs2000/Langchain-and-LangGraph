@@ -27,7 +27,7 @@ def retrieve_context(query: str) :
     
     # Serializing the docs
     serialized_content = "\n\n".join(
-        (f"Source : {doc.metadata.get("source", "Unknow")} \n\n Content : {doc.page_content}")
+        (f"Source : {doc.metadata.get("source", "Unknown")} \n\n Content : {doc.page_content}")
         for doc in retrived_docs
     )
     
