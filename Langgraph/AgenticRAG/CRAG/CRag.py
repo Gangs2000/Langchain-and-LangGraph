@@ -1,4 +1,14 @@
-from Nodes import Retrieve, GradeDocuments, WebSearch, Generation
+import os
+import sys
+
+C_RAG_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if C_RAG_ROOT not in sys.path:
+    sys.path.insert(0, C_RAG_ROOT)
+
+from Nodes.Retrieve import retrieve
+from Nodes.GradeDocuments import grade_documents
+from Nodes.WebSearch import web_search
+from Nodes.Generation import generate_answer
 from langgraph.graph import END, StateGraph
 from State.GraphState import GraphState
 from dotenv import load_dotenv
@@ -21,10 +31,10 @@ def decide_to_generate(state: GraphState) -> str:
         return GENERATE
 
 flow = StateGraph(GraphState)
-flow.add_node(RETRIEVE, Retrieve)
-flow.add_node(GRADE_DOCS, GradeDocuments)
-flow.add_node(WEB_SEARCH, WebSearch)
-flow.add_node(GENERATE, Generation)
+flow.add_node(RETRIEVE, retrieve)
+flow.add_node(GRADE_DOCS, grade_documents)
+flow.add_node(WEB_SEARCH, web_search)
+flow.add_node(GENERATE, generate_answer)
 
 flow.add_edge(RETRIEVE, GRADE_DOCS)
 flow.add_conditional_edges(GRADE_DOCS, decide_to_generate, {

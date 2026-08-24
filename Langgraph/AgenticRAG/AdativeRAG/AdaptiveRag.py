@@ -1,8 +1,19 @@
-from Nodes import Retrieve, GradeDocuments, WebSearch, Generation
-from Chains import HallucinationGrader, AnswerGrader, RouterGrader
+import os
+import sys
+
+AGENTIC_RAG_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if AGENTIC_RAG_ROOT not in sys.path:
+    sys.path.insert(0, AGENTIC_RAG_ROOT)
+
+from Nodes.Retrieve import retrieve
+from Nodes.GradeDocuments import grade_documents
+from Nodes.WebSearch import web_search
+from Nodes.Generation import generate_answer
+from Chains.HallucinationGrader import hallucination_grader 
+from Chains.AnswerGrader import answer_grader
 from langgraph.graph import END, StateGraph
 from State.GraphState import GraphState
-from Chains.RouterGrader import RouteQuery
+from Chains.RouterGrader import RouteQuery, question_router
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,20 +29,21 @@ def grade_generation_grounded_in_documents_and_question(state: GraphState) -> st
     generated_answer = state["generation"]
     print("==== Check hallucination ====")
     if generated_answer is not None:
-        score = HallucinationGrader.invoke({"documents": documents, "generation": generated_answer})
+        score = hallucination_grader.invoke({"documents": documents, "generation": generated_answer})
         if hallucination_grade := score.binary_score:
             print("==== DECISION: GENERATION IS GROUNDED IN DOCUMENTS ====")
             print("==== GRADE GENERATION vs QUESTION ====")
-            score = AnswerGrader.invoke({"question": question, "generation": generated_answer})
+            score = answer_grader.invoke({"question": question, "generation": generated_answer})
             if answer_grade := score.binary_score:
                 print("==== DECISION: GENERATION ADDRESSES QUESTION ====")
                 return "useful"
             else:
                 print("==== DECISION: GENERATION DOES NOT ADDRESS QUESTION ====")
-                return "not useful"
+                return "not_useful"
         else:
             print("==== DECISION: GENERATION IS NOT GROUNDED IN DOCUMENTS ====")
-            return "not supported"
+            return "not_supported"
+    return "not_supported"
 
 def decide_to_generate(state: GraphState) -> str:
     print("==== ASSESS graded docs ====")
@@ -45,7 +57,7 @@ def decide_to_generate(state: GraphState) -> str:
     
 def route_question(state: GraphState) -> str:
     question = state["question"]
-    source: RouteQuery = RouterGrader.invoke({"question": question})
+    source: RouteQuery = question_router.invoke({"question": question})
     if source.dataSource == "vectore_db":
         print("=== ROUTER TO RAG ====")
         return RETRIEVE
@@ -54,10 +66,10 @@ def route_question(state: GraphState) -> str:
         return WEB_SEARCH
 
 flow = StateGraph(GraphState)
-flow.add_node(RETRIEVE, Retrieve)
-flow.add_node(GRADE_DOCS, GradeDocuments)
-flow.add_node(WEB_SEARCH, WebSearch)
-flow.add_node(GENERATE, Generation)
+flow.add_node(RETRIEVE, retrieve)
+flow.add_node(GRADE_DOCS, grade_documents)
+flow.add_node(WEB_SEARCH, web_search)
+flow.add_node(GENERATE, generate_answer)
 
 flow.set_conditional_entry_point(route_question, {
     WEB_SEARCH: WEB_SEARCH,
@@ -82,7 +94,7 @@ flow.add_edge(GENERATE, END)
 
 app = flow.compile()
 
-app.get_graph().draw_mermaid_png(output_file_path= "SelfRAG.png")
+app.get_graph().draw_mermaid_png(output_file_path= "AdaptiveRag.png")
 
 if __name__ == "__main__":
     query = "About agent memory?"
