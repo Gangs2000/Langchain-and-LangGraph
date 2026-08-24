@@ -36,6 +36,8 @@ flow.add_node(GRADE_DOCS, grade_documents)
 flow.add_node(WEB_SEARCH, web_search)
 flow.add_node(GENERATE, generate_answer)
 
+flow.set_entry_point(RETRIEVE)
+
 flow.add_edge(RETRIEVE, GRADE_DOCS)
 flow.add_conditional_edges(GRADE_DOCS, decide_to_generate, {
     WEB_SEARCH: WEB_SEARCH,
@@ -50,6 +52,6 @@ app = flow.compile()
 app.get_graph().draw_mermaid_png(output_file_path= "CRAG.png")
 
 if __name__ == "__main__":
-    query = "About agent memory?"
+    query = "agent memory"
     print(app.invoke(input = {"question": query}))
 
