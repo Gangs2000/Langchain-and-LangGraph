@@ -1,4 +1,3 @@
-# math_server.py
 import os
 
 from dotenv import load_dotenv
@@ -7,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 load_dotenv()
 from tavily import TavilyClient
 
-mcp = FastMCP("Math")
+mcp = FastMCP("MCP_SERVER")
 
 
 @mcp.tool()
