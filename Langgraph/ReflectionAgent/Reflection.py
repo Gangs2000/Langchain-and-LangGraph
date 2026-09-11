@@ -2,6 +2,8 @@ from langchain_core.messages import HumanMessage, BaseMessage
 from typing import TypedDict, Annotated
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
+from langgraph.types import interrupt, Command
+from langgraph.checkpoint.memory import MemorySaver
 from Chains import generation_chain, reflection_chain
 
 from dotenv import load_dotenv
@@ -23,7 +25,9 @@ def reflection_node(state: MessageGraph):
     return {"messages": [HumanMessage(content= response.content)]}
 
 def should_continue(state: MessageGraph):
-    if len(state["messages"]) > 6:
+    # pause and surface the latest draft to a human for approve/reject
+    decision = interrupt({"question": "Approve this draft?", "messages": state["messages"]})
+    if decision == "approve":
         return END
     return REFLECT
 
@@ -39,7 +43,9 @@ flow.add_conditional_edges(GENERATE, should_continue, path_map={
     REFLECT:REFLECT
 })
 
-app = flow.compile()
+# interrupt() requires a checkpointer to persist state across the pause/resume
+checkpointer = MemorySaver()
+app = flow.compile(checkpointer=checkpointer)
 app.get_graph().draw_mermaid_png(output_file_path="reflect.png")
 
 if __name__ == "__main__":
@@ -50,12 +56,20 @@ if __name__ == "__main__":
                 content=
                 """
                     Make this LinkedIn better:"
-                    @LangChainAI newly Tool Calling feature is seriously underrated.
-                    After a long wait, it's  here- making the implementation of agents across different models with function calling - super easy.
-                    Made a video covering their newest blog post
+                    About langchain human loop concept
                 """
             )
         ]
     }
-    response = app.invoke(inputs)
-    print(response)
+    config = {"configurable": {"thread_id": "reflection-agent-demo"}}
+
+    response = app.invoke(inputs, config=config)
+    while "__interrupt__" in response:
+        payload = response["__interrupt__"][0].value
+        print("\n--- Draft awaiting review ---")
+        print(payload["messages"][-1].content)
+        decision = input("Approve or reject this draft? [approve/reject]: ").strip().lower()
+        response = app.invoke(Command(resume=decision), config=config)
+
+    print("\n=== Final approved output ===")
+    print(response["messages"][-1].content)
