@@ -27,16 +27,16 @@ def search(query: str) -> str:
 def main():
     print("Search Agent using LangChain!!")
     query = input("Ask a question : ")
-    
-    # LLM initialization
-    llm = ChatOpenAI(temperature=0, model="gpt-4")
-    # Agent creation
-    agent = create_agent(model= llm, tools=[search], response_format=AgentResponse.AgentResponse)
-    # Invoking the agent with the user's query
-    response = agent.invoke({"messages" : [HumanMessage(content=query)]})
-    # Access structured response from the agent
-    structured = response.get("structured_response", None)
-    print(structured if structured is not None else response)
+
+    llm = ChatOpenAI(temperature=0, model="gpt-4", streaming=True)
+    agent = create_agent(model=llm, tools=[search], response_format=AgentResponse.AgentResponse)
+
+    for token, metadata in agent.stream(
+        {"messages": [HumanMessage(content=query)]},
+        stream_mode="messages",
+    ):
+        if token.content:
+            print(token.content, end="", flush=True)
     
 if __name__ == "__main__":
     main()
