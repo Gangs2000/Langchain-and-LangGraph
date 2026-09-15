@@ -1,19 +1,23 @@
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.runnables import RunnableSequence
-from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableSequence
+from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
 
 load_dotenv()
 
-llm = ChatOpenAI(temperature= 0)
+llm = ChatOpenAI(temperature=0)
+
 
 class GradeHallucination(BaseModel):
     """Binary score to check generated answer is hallucinated"""
-    
-    binary_score: bool = Field(description= "Answer is grounded in the facts 'yes' or 'no'")
-    
+
+    binary_score: bool = Field(
+        description="Answer is grounded in the facts 'yes' or 'no'"
+    )
+
+
 hallucinated_strucuted_output = llm.with_structured_output(GradeHallucination)
 
 system_message = """
@@ -21,9 +25,13 @@ system_message = """
                 Give a binary score 'yes' or 'no'. 'Yes' means that the answer is grounded in / supported by the set of facts.
             """
 
-messages = ChatPromptTemplate.from_messages([
-    SystemMessage(content= system_message),
-    HumanMessage(content= """Set of facts: \n\n {documents} \n\n LLM generation: {generation}""")
-])
+messages = ChatPromptTemplate.from_messages(
+    [
+        SystemMessage(content=system_message),
+        HumanMessage(
+            content="""Set of facts: \n\n {documents} \n\n LLM generation: {generation}"""
+        ),
+    ]
+)
 
 hallucination_grader: RunnableSequence = messages | hallucinated_strucuted_output

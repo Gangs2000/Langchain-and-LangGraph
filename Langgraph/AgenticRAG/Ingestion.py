@@ -1,6 +1,6 @@
+from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_unstructured import UnstructuredLoader
 
@@ -14,7 +14,12 @@ urls = [
     "https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/",
 ]
 
-documents = [UnstructuredLoader(web_url=url, chunking_strategy= "basic", max_characters=1000000).load() for url in urls]
+documents = [
+    UnstructuredLoader(
+        web_url=url, chunking_strategy="basic", max_characters=1000000
+    ).load()
+    for url in urls
+]
 document_list = [item for sublist in documents for item in sublist]
 
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
@@ -25,8 +30,12 @@ document_split = text_splitter.split_documents(document_list)
 
 embeddings = OpenAIEmbeddings()
 
-PineconeVectorStore.from_documents(document_split, embeddings, index_name = "advanced-rag")
+PineconeVectorStore.from_documents(
+    document_split, embeddings, index_name="advanced-rag"
+)
 
-retriever = PineconeVectorStore(embedding= embeddings, index_name = "advanced-rag").as_retriever()
+retriever = PineconeVectorStore(
+    embedding=embeddings, index_name="advanced-rag"
+).as_retriever()
 
 print("======== Finish Document Ingestion =========")
