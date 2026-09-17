@@ -13,7 +13,7 @@ from langgraph.types import Command, interrupt
 from Nodes.ats_resume_validation_node import ats_resume_score_validator
 from Nodes.fix_grammer_mistake_node import fix_grammer_mistake
 from Nodes.grammer_validation_node import grammer_validation
-from Nodes.suggestion_node import suggestion_extraction_and_apply
+from Nodes.resume_improvement_node import suggestion_extraction_and_apply
 from State.ResumeState import ResumeState
 
 load_dotenv()
@@ -21,7 +21,7 @@ load_dotenv()
 GRAMMER_VALIDATOR_NODE = "grammer_validation"
 FIX_GRAMMER_NODE = "fix_grammer_mistake"
 ATS_RESUME_VALIDATOR_NODE = "ats_resume_validation"
-SUGGESTION_NODE = "suggestion_extract_and_apply"
+IMPROVEMENT_NODE = "resume_improvement"
 
 
 def grammer_validation_check(state: ResumeState):
@@ -35,7 +35,7 @@ def ats_resume_meter_check(state: ResumeState):
     ats_score = state["ats_resume_score"]
     if ats_score >= 80.0:
         return END
-    return SUGGESTION_NODE
+    return IMPROVEMENT_NODE
 
 
 flow = StateGraph(state_schema=ResumeState)
@@ -44,7 +44,7 @@ flow = StateGraph(state_schema=ResumeState)
 flow.add_node(GRAMMER_VALIDATOR_NODE, grammer_validation)
 flow.add_node(FIX_GRAMMER_NODE, fix_grammer_mistake)
 flow.add_node(ATS_RESUME_VALIDATOR_NODE, ats_resume_score_validator)
-flow.add_node(SUGGESTION_NODE, suggestion_extraction_and_apply)
+flow.add_node(IMPROVEMENT_NODE, suggestion_extraction_and_apply)
 
 # Set entry point - GRAMMER VALIDATOR NODE
 flow.set_entry_point(GRAMMER_VALIDATOR_NODE)
@@ -60,12 +60,12 @@ flow.add_conditional_edges(
     },
 )
 # Edge from suggestion_extractor_and_apply to ats_resume_validator
-flow.add_edge(SUGGESTION_NODE, ATS_RESUME_VALIDATOR_NODE)
+flow.add_edge(IMPROVEMENT_NODE, ATS_RESUME_VALIDATOR_NODE)
 # Conditional edge check on ats_resume_meter_check, if above 80.0% go to END, else suggestion_extractor_and_apply
 flow.add_conditional_edges(
     ATS_RESUME_VALIDATOR_NODE,
     ats_resume_meter_check,
-    path_map={SUGGESTION_NODE: SUGGESTION_NODE, END: END},
+    path_map={IMPROVEMENT_NODE: IMPROVEMENT_NODE, END: END},
 )
 
 app = flow.compile()

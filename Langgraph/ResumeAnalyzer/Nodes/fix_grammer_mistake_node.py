@@ -10,19 +10,19 @@ from typing import Any, Dict
 from langsmith import traceable
 
 from Chains.fix_grammer_mistake_chain import fix_grammer_grader
-from Chains.grammer_validator_chain import GrammerValidator
+from Chains.grammer_validator_chain import GrammeticalErrors
 from State.ResumeState import ResumeState
 
 
 # To format the grammer mistakes
-def format_grammer_mistakes_for_prompt(grammer_error_data: GrammerValidator) -> str:
-    """Converts a GrammerValidator Pydantic object into a clean Markdown string."""
+def format_grammer_mistakes_for_prompt(grammer_error_data: GrammeticalErrors) -> str:
+    """Converts a GrammeticalErrors Pydantic object into a clean Markdown string."""
     formatted_list = []
-    for idx, item in enumerate(grammer_error_data.grammer_mistakes, 1):
+    for idx, item in enumerate(grammer_error_data, 1):
         formatted_list.append(
-            f" - Mistaken word: {item.mistaken_word}\n"
-            f" - Reason: {item.reason}\n"
-            f" - Correct word: {item.correct_word}"
+            f"{idx}.- Mistake: {item.mistaken_word}\n"
+            f"      - Reason: {item.reason}\n"
+            f"      - Correct word: {item.correct_word}"
         )
     return "\n\n".join(formatted_list)
 

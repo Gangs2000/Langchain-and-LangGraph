@@ -12,27 +12,29 @@ llm = ChatOllama(
 )
 
 
-class SuggestionAdvice(BaseModel):
-    category: str = Field(description="The category of the suggestion")
+class ImprovementAdvice(BaseModel):
+    category: str = Field(
+        description="The category of the improvement (e.g., Keywords, Formatting, Action Verbs, Metrics, Structure)"
+    )
     issue: str = Field(description="The issue or opportunity identified in the resume")
     recommendation: str = Field(
         description="The exact rewrite, added keyword, or structural adjustment to make"
     )
 
 
-class Suggestions(BaseModel):
-    suggestions: list[SuggestionAdvice] = Field(
-        description="List of specific suggestions to improve the resume"
+class Improvements(BaseModel):
+    improvements: list[ImprovementAdvice] = Field(
+        description="List of specific improvement suggestions to improve the resume"
     )
 
 
-suggestions_system_prompt = ChatPromptTemplate.from_messages(
+improvements_system_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
             """ 
                 You are an expert ATS (Applicant Tracking System) Resume Optimization Specialist. Your sole purpose is to provide direct, 
-                high-impact suggestions to maximize resume parse rates and keyword alignment.
+                high-impact improvement suggestions to maximize resume parse rates and keyword alignment.
 
                 ## Core Rules
                 1. Quantity: Generate strictly 4 to 6 actionable improvement suggestions.
@@ -42,7 +44,7 @@ suggestions_system_prompt = ChatPromptTemplate.from_messages(
                 4. Tone: Concise, professional, and directly actionable.
 
                 ## Format Requirements
-                Output each suggestion as a single item with two clear parts:
+                Output each improvement suggestion as a single item with two clear parts:
                 `category`: "Keywords | Formatting | Action Verbs | Metrics | Structure",
                 `issue`: "Brief description of the problem in the text",
                 `recommendation`: "Exact fix or rewrite to apply" 
@@ -50,18 +52,18 @@ suggestions_system_prompt = ChatPromptTemplate.from_messages(
         ),
         (
             "human",
-            "Analyze this resume and provide ATS optimization suggestions:\n\n{resume_content}",
+            "Analyze this resume and provide ATS optimization improvement suggestions:\n\n{resume_content}",
         ),
     ]
 )
 
-suggestion_extractor = llm.with_structured_output(Suggestions)
+improvements_extractor = llm.with_structured_output(Improvements)
 
-suggestion_extractor_grader: RunnableSequence = (
-    suggestions_system_prompt | suggestion_extractor
+improvements_extractor_grader: RunnableSequence = (
+    improvements_system_prompt | improvements_extractor
 )
 
-suggestion_applier_prompt = ChatPromptTemplate.from_messages(
+improvements_applier_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
@@ -83,7 +85,7 @@ suggestion_applier_prompt = ChatPromptTemplate.from_messages(
                 --- CURRENT ATS SCORE ---
                 {ats_resume_score} / 100.0
                 --- IMPROVEMENT SUGGESTIONS TO APPLY ---
-                {suggestions}
+                {improvements}
                 --- ORIGINAL RESUME TEXT ---
                 {resume_content}
             """,
@@ -91,4 +93,4 @@ suggestion_applier_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-suggestion_applier_grader = suggestion_applier_prompt | llm | StrOutputParser()
+improvements_applier_grader = improvements_applier_prompt | llm | StrOutputParser()
