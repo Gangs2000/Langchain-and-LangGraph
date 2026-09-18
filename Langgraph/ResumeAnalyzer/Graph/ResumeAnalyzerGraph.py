@@ -159,16 +159,16 @@ if __name__ == "__main__":
             resume_dict["difficulty"] = difficulty
         response = app.invoke(Command(resume=resume_dict), config=config)
 
-    # print("\n *** Original resume content ***")
-    # print("+" * 50)
-    # print(response.get("resume_content"))
+    print("\n *** Original resume content ***")
+    print("+" * 50)
+    print(response.get("resume_content"))
     print("+" * 50)
     print("\n *** Resume ATS Score ***")
     print(response.get("ats_resume_score", "Not available"))
     print("+" * 50)
-    # print("\n *** Improved resume content ***")
-    # print(response.get("improved_content", "Not available"))
-    # print("+" * 50)
+    print("\n *** Improved resume content ***")
+    print(response.get("improved_content", "Not available"))
+    print("+" * 50)
 
     generated_questions = response.get("generated_questions") or []
     difficulty = response.get("difficulty", "Not specified")
