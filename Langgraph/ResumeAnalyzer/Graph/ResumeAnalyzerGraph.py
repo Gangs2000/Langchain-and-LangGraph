@@ -136,88 +136,9 @@ app.get_graph().draw_mermaid_png(output_file_path="resume_analyzer_graph.png")
 if __name__ == "__main__":
     print("=== Begin resume analyzer ===")
     resume_content = """
-        Career Objective :
-
-        I is seekings a dynamicly environment where I can leverages my skill in write, test, and debugs code to driving website and AI applications performings and reliable. 
-        Exciting to contributing for innovative project and took on new challenge in the Software and AI engineerings domains.
-
-        --------------------------------------------------
-
-        Work Experience :
-
-        IT ANALYST
-        Tata Consultancy Services
-        Aug 2020 - Apr 2022
-
-        -> Spearheaded Java Support Development, delivering features based on customer requests and maintaining codebase quality through regular clean-up efforts.
-        -> Leveraged expertise in Spring Framework to develop robust solutions, solidifying skills in Java and Spring environments.
-
-        SOFTWARE ENGINEER
-        Globallogic Services
-        May 2022 - Dec 2023
-
-        -> Contributed as a Software Engineer on a networking product, utilizing Core Java, Microservices, PostgreSQL, MongoDB, and Docker management skills.
-        -> Demonstrated expertise in designing and developing scalable solutions, ensuring seamless integration across multiple components.
-
-        SOFTWARE DEVELOPER ENGINEER
-        Centrico Software India Pvt Ltd
-        Dec 2023 - Present
-
-        -> Currently driving innovation as a Software Developer in the banking domain, focusing on writing clean, efficient, and reusable code using Microservices architecture patterns.
-        -> Expanded skillset through Agentic AI projects, gaining expertise in LLM, RAG, Deep Agent skills, and contributing to cutting-edge AI solutions.
-
-        -----------------------------------------------------
-
-        Projects :
-
-        1. Gen Re Insurance Project - TCS
-                -> Duration: 1 year and 8 months
-                -> Tech Stack: Core Java, Java 8, Spring Microservices, RabbitMQ
-                -> Description: As a developer, I contributed to the development of an end-user insurance policy application that validated policies and sent automatic expiration warnings. 
-        					   My responsibilities included implementing features on the application side using Core Java.
-
-        2. IoT DMDC - Ericsson
-                -> Duration: 1 year and 6 months
-                -> Tech Stack: Core Java, Java 8, Spring Microservices, Spring Hibernate, Spring MVC, Restful Web Service, Spring Security, RabbitMQ
-                -> Description: I was work on a virtual-based application that onboard virtual devices which supports various protocols and functionality. 
-                         The app monitored device behaviors, generate CSV files and plotted graph in the GUI component.
-
-        3. Covered Bond, Pricing - Centrico Software India Pvt Ltd, Agentic AI Chat Bot
-                -> Duration: December 2023 - Present
-                -> Tech Stack: Core Java, Java 17, JUnit, Mockito, Spring Microservices, Spring Hibernate, Spring MVC, Restful Web-Service, Spring Security, React JS, SQL, Agentic AI, Langchain, Langgraph
-                -> Description: I have start with the Covered Bond project, focus on backend development and delivers a successful project in a short timeframe. 
-                         Subsequently, I work on Platform Pricing, contributed to both fontend and backend development. 
-                         Additionally, I expand my skills in the Agentic AI domain by implement a chatbot that process tasks through chat command.
-        
-        ------------------------------------------------------
-
-        Competencies :
-
-        -> Programming Languages: Proficient on Core java, ReactJS, and Python.
-        -> Collaborative Development: Proven abilities for working effectively with cross functional teams to delivers high-quality solution
-        -> Planning Analytics: Strong analytical skill, with experience in data driven decision makings and process optimization
-        -> Troubleshooting: Skilled to identify and resolving complex technical issues, ensured minimal downtime and maximum efficiency
-        -> Teamwork: A natural team player which have excellent communication and interpersonal skills, able for building strong relationships with colleagues, and stakeholders
-        -> Self-Motivation: Drived by a passion for innovations and continuous learning, with a strong work ethics and commitment to delivering of results
-        
-        ------------------------------------------------------
-
-        Additional information :
-
-        Certifications: Computer Architecture NPTEL, Programming in Java, Langchain and LangGraph
-        course Udemy Certificate
-        Awards/Activities: Recognized as Best Employee of the year award - 2025, Won 2nd prize at CS
-        INNOWIZ-2018, Tech Hunt, Secured 2nd prize at the Intramural Games organized by Sourashtra Co-
-        Education Higher Secondary School, February 2014.
-
-        ------------------------------------------------------
-
-        Declaration :
-
-        I hereby solemnly declare that the information mentioned above are true and to the best of knowledge
-        and belief.
-
-        ------------------------------------------------------
+        Paste your resume content here for analysis. 
+        The resume analyzer will evaluate the content, check for grammar mistakes, assess the ATS score, provide improvement suggestions, 
+        and generate technical interview questions based on the resume.    
     """
     config = {"configurable": {"thread_id": "ollama_resume_analyzer"}}
     response = app.invoke(input={"resume_content": resume_content}, config=config)
