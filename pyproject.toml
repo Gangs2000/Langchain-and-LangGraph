@@ -9,6 +9,7 @@ dependencies = [
     "black>=26.5.1",
     "isort>=8.0.1",
     "langchain-community>=0.4.2",
+    "langchain-ollama>=1.1.0",
     "langchain-openai>=1.4.0",
     "langchain-pinecone>=0.2.13",
     "langchain-tavily>=0.2.18",

@@ -9,9 +9,11 @@ from typing import Any, Dict
 
 from langsmith import traceable
 
-from Chains.resume_improvement_chain import (ImprovementAdvice,
-                                             improvements_applier_grader,
-                                             improvements_extractor_grader)
+from Chains.resume_improvement_chain import (
+    ImprovementAdvice,
+    improvements_applier_grader,
+    improvements_extractor_grader,
+)
 from State.ResumeState import ResumeState
 
 

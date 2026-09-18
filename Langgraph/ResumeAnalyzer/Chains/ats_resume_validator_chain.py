@@ -6,9 +6,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-llm = ChatOllama(
-    model="llama3", num_thread=4, num_ctx=4096, num_predict=2048, temperature=0
-)
+llm = ChatOllama(model="llama3", num_ctx=16384, num_predict=4096, temperature=0)
 
 
 from pydantic import BaseModel, Field
