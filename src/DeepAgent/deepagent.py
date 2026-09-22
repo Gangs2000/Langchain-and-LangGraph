@@ -30,51 +30,6 @@ async def initialize_mcp_connection():
     )
     return mcp_server_connection
 
-# Human in the loop ( Approve, Reject and Edit operations )
-async def human_in_the_loop(agent, result, config):
-    while "__interrupt__" in result:
-        interrupt = result["__interrupt__"][0]
-        print(interrupt.value)
-        decision = (
-            input("Select one of the action a -> Approve, r -> Reject, e -> Edit:")
-            .strip()
-            .lower()
-        )
-        if decision == "a":
-            # Approve case
-            print("Tool execution approved")
-            result = await agent.ainvoke(
-                Command(resume={"decisions": [{"type": "approve"}]}),
-                config=config,
-            )
-        elif decision == "r":
-            # Rejection case
-            print("Tool execution rejected by user.")
-            return
-        elif decision == "e":
-            # Edition query case
-            print("Editing argument with new input")
-            new_query = input(
-                "Please provide input to resume search weather operation : "
-            ).strip()
-            action = interrupt.value["action_requests"][0]
-            result = await agent.ainvoke(
-                Command(
-                    resume={
-                        "decisions": [
-                            {
-                                "type": "edit",
-                                "edited_action": {
-                                    "name": action["name"],
-                                    "args": {"query": new_query},
-                                },
-                            }
-                        ]
-                    }
-                ),
-                config=config,
-            )
-
 
 async def main():
     server_connection = await initialize_mcp_connection()
@@ -117,7 +72,52 @@ async def main():
                 config=config,
             )
 
-            await human_in_the_loop(agent=agent, result=result, config=config)
+            while "__interrupt__" in result:
+                interrupt = result["__interrupt__"][0]
+                print(interrupt.value)
+                decision = (
+                    input(
+                        "Select one of the action a -> Approve, r -> Reject, e -> Edit:"
+                    )
+                    .strip()
+                    .lower()
+                )
+                if decision == "a":
+                    # Approve case
+                    print("Tool execution approved")
+                    result = await agent.ainvoke(
+                        Command(resume={"decisions": [{"type": "approve"}]}),
+                        config=config,
+                    )
+                elif decision == "r":
+                    # Rejection case
+                    print("Tool execution rejected by user.")
+                    return
+                elif decision == "e":
+                    # Edition query case
+                    print("Editing argument with new input")
+                    new_query = input(
+                        "Please provide input to resume search weather operation : "
+                    ).strip()
+                    action = interrupt.value["action_requests"][0]
+                    result = await agent.ainvoke(
+                        Command(
+                            resume={
+                                "decisions": [
+                                    {
+                                        "type": "edit",
+                                        "message": f"User edited the action, now your goal is to execute tool and obtain final answer with the new input '{new_query}'.",
+                                        "edited_action": {
+                                            "name": action["name"],
+                                            "args": {"query": new_query},
+                                        },
+                                    }
+                                ]
+                            }
+                        ),
+                        config=config,
+                    )
+
             print(result["messages"][-1].content)
 
 
